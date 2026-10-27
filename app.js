@@ -176,6 +176,10 @@
 
     var html =
       '<section class="scene">' +
+      '<header class="scene-head">' + pageCount() +
+      '<h1><span class="sec-num">' + p.num + ".</span>장면 " + (p.index + 1) + " / " + state.order.length + "</h1>" +
+      '<div class="brief">' + s.context.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" +
+      "</header>" +
       '<div class="scene-media">' +
       '<div class="screen">' +
       '<video playsinline muted preload="auto" disablepictureinpicture' + (s.poster ? ' poster="' + esc(s.poster) + '"' : "") + ">" +
@@ -184,13 +188,11 @@
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
       "<span>영상 재생</span></button></div>" +
       "</div>" +
-      '<div class="screen-status"><span class="status-text">상황 설명을 읽고 재생해 주세요.</span>' +
+      '<div class="screen-status"><span class="status-text">위 상황 설명을 읽고 재생해 주세요.</span>' +
       '<span class="timeline" aria-hidden="true"><i></i></span>' +
       '<button class="replay" data-replay hidden>다시 보기</button></div>' +
       "</div>" +
-      '<div class="scene-side">' + pageCount() +
-      '<h1><span class="sec-num">' + p.num + ".</span>장면 " + (p.index + 1) + " / " + state.order.length + "</h1>" +
-      '<div class="brief">' + s.context.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" +
+      '<div class="scene-side">' +
       '<p class="watch-note">영상을 끝까지 시청하신 뒤 아래 질문에 응답해 주세요. 정답은 없으니 느끼신 그대로 답해 주시면 됩니다.</p>' +
       '<div class="scene-questions"' + (rec.watched ? "" : " hidden") + ">" +
       items.map(function (q, i) { return questionHTML(q, p.num + "-" + (i + 1)); }).join("") +

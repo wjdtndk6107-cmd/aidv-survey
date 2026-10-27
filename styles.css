@@ -108,6 +108,8 @@ body.cabin { background: var(--cabin); color: var(--cabin-ink); }
 body.cabin .progress { background: rgba(255,255,255,.06); }
 
 .scene { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(340px, 1fr); gap: 28px; max-width: 1480px; margin: 0 auto; padding: 40px 28px 80px; align-items: start; }
+.scene-head { grid-column: 1 / -1; max-width: 860px; }
+.scene-head .brief { margin-bottom: 0; }
 .scene-media { position: sticky; top: 28px; }
 .screen { position: relative; border-radius: 22px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px var(--cabin-line), 0 30px 80px rgba(0,0,0,.45); aspect-ratio: 1920 / 1058; }
 .screen video { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -124,9 +126,9 @@ body.cabin .progress { background: rgba(255,255,255,.06); }
 .timeline { flex: 1; height: 3px; background: var(--cabin-line); border-radius: 3px; overflow: hidden; max-width: 260px; }
 .timeline i { display: block; height: 100%; width: 0; background: var(--cabin-ink-2); }
 
-.scene-side .page-count { color: var(--cabin-ink-2); }
-.scene-side h1 { font-size: clamp(24px, 2.6vw, 30px); line-height: 1.3; letter-spacing: -0.03em; font-weight: 750; margin: 0 0 18px; }
-.scene-side h1 .sec-num { color: #A08BFF; margin-right: .35em; }
+.scene-head .page-count { color: var(--cabin-ink-2); }
+.scene-head h1 { font-size: clamp(24px, 2.6vw, 30px); line-height: 1.3; letter-spacing: -0.03em; font-weight: 750; margin: 0 0 18px; }
+.scene-head h1 .sec-num { color: #A08BFF; margin-right: .35em; }
 .brief { border-left: 3px solid #8E76FF; padding: 2px 0 2px 18px; margin: 0 0 22px; }
 .brief p { margin: 0 0 10px; color: var(--cabin-ink); }
 .brief p:last-child { margin-bottom: 0; color: var(--cabin-ink-2); }
@@ -135,6 +137,7 @@ body.cabin .progress { background: rgba(255,255,255,.06); }
 
 .scene-questions[hidden] { display: none; }
 body.cabin .q { background: var(--cabin-2); border-color: var(--cabin-line); padding: 22px 20px 20px; margin-top: 16px; }
+.scene-side .watch-note { margin-top: 0; }
 body.cabin .q-title { font-size: 16.5px; margin-bottom: 14px; }
 body.cabin .q-num { color: #A08BFF; }
 body.cabin .likert span, body.cabin .choice { background: transparent; border-color: var(--cabin-line); color: var(--cabin-ink); }
