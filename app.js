@@ -112,7 +112,7 @@
       "<li><b>진행 순서</b><span>기본 정보 → AI 태도 설문 → 주행 영상 " + state.order.length + "개 시청 후 응답</span></li>" +
       "<li><b>개인정보</b><span>이름·연락처 등 개인을 식별할 수 있는 정보는 수집하지 않으며, 응답은 연구 목적으로만 사용돼요.</span></li>" +
       "<li><b>중단</b><span>언제든 창을 닫아 그만두실 수 있고, 불이익은 없어요.</span></li>" +
-      "<li><b>권장 환경</b><span>PC나 태블릿처럼 큰 화면에서 참여해 주세요. 소리는 켜지 않아도 됩니다.</span></li>" +
+      "<li><b>권장 환경</b><span>PC나 태블릿처럼 큰 화면에서 참여해 주세요. 실제감을 위해 영상의 소리를 켜 주세요.</span></li>" +
       "</ul>" +
       questionHTML({ key: "consent", type: "radio", text: "위 안내를 읽으셨으며, 본 연구에 자발적으로 참여하는 것에 동의하시나요?", options: ["네, 동의합니다", "아니요, 동의하지 않습니다"] }, null) +
       '<p class="form-error" role="alert"></p>' +
@@ -179,10 +179,11 @@
       '<header class="scene-head">' + pageCount() +
       '<h1><span class="sec-num">' + p.num + ".</span>장면 " + (p.index + 1) + " / " + state.order.length + "</h1>" +
       '<div class="brief">' + s.context.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" +
+      (C.sceneInstruction ? '<p class="imagine"><strong>“' + esc(C.sceneInstruction) + '”</strong></p>' : "") +
       "</header>" +
       '<div class="scene-media">' +
       '<div class="screen">' +
-      '<video playsinline muted preload="auto" disablepictureinpicture' + (s.poster ? ' poster="' + esc(s.poster) + '"' : "") + ">" +
+      '<video playsinline preload="auto" disablepictureinpicture' + (s.poster ? ' poster="' + esc(s.poster) + '"' : "") + ">" +
       '<source src="' + esc(s.video) + '" type="video/mp4"></video>' +
       '<div class="screen-cover"><button class="play-btn" data-play>' +
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
