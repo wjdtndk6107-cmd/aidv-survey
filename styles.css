@@ -99,8 +99,8 @@ textarea:focus-visible { outline: 3px solid var(--violet); outline-offset: 1px; 
 .form-error { color: var(--alert); font-size: 15px; margin: 14px 0 0; min-height: 1.4em; }
 
 /* ── 실험 안내 그림 ──────────────────────── */
-.dash-figure { margin: 26px 0 0; background: var(--cabin); border-radius: var(--radius-lg); padding: 18px; }
-.dash-figure svg { display: block; width: 100%; height: auto; }
+.dash-figure { margin: 26px 0 0; background: var(--cabin); border-radius: var(--radius-lg); padding: 10px 10px 14px; }
+.dash-figure img { display: block; width: 100%; height: auto; border-radius: 10px; }
 .dash-figure figcaption { color: var(--cabin-ink-2); font-size: 14px; margin-top: 10px; }
 
 /* ── 장면 페이지 (차량 실내 톤) ──────────── */

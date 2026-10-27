@@ -168,8 +168,8 @@
       "<li><b>보는 방법</b><span>영상마다 상황 설명을 먼저 읽고 재생해 주세요. 영상을 끝까지 보시면 질문이 나타나요.</span></li>" +
       "<li><b>응답</b><span>정답은 없으니 느끼신 그대로 답해 주시면 됩니다.</span></li>" +
       "</ul>" +
-      '<figure class="dash-figure">' + dashSVG() +
-      "<figcaption>질문에 나오는 차량 화면 위치예요. HUD는 앞유리, 클러스터는 핸들 뒤 계기판, 센터 디스플레이는 가운데 큰 화면이에요.</figcaption></figure>" +
+      '<figure class="dash-figure"><img src="media/dash_guide.jpg" width="1600" height="890" alt="실제 차량 실내 사진에 HUD, 클러스터, 센터 디스플레이 위치를 표시한 그림">' +
+      "<figcaption>질문에 나오는 차량 화면 위치예요. HUD는 앞유리, 클러스터는 핸들 너머 계기판, 센터 디스플레이는 가운데 큰 화면이에요.</figcaption></figure>" +
       '<div class="actions"><button class="btn btn-ghost" data-prev>이전</button><button class="btn" data-next>영상 보러 가기</button></div>' +
       "</section>";
     app.querySelector("[data-prev]").onclick = function () { go(state.page - 1); };
@@ -470,21 +470,6 @@
         setTimeout(function () { URL.revokeObjectURL(u); }, 1000);
       };
     }
-  }
-
-  // ── 실험 안내 그림 (차량 화면 위치) ─────────────────
-  function dashSVG() {
-    return '<svg viewBox="0 0 640 300" role="img" aria-label="차량 실내에서 HUD, 클러스터, 센터 디스플레이의 위치">' +
-      '<path d="M40 20 Q320 -6 600 20 L560 150 Q320 132 80 150 Z" fill="#1E2A40"/>' +
-      '<rect x="180" y="96" width="120" height="30" rx="6" fill="none" stroke="#A08BFF" stroke-width="2" stroke-dasharray="5 4"/>' +
-      '<text x="240" y="116" fill="#CFC4FF" font-size="15" text-anchor="middle" font-weight="700">HUD</text>' +
-      '<path d="M0 170 Q320 140 640 170 L640 300 L0 300 Z" fill="#141E30"/>' +
-      '<rect x="168" y="160" width="144" height="40" rx="8" fill="#26334A" stroke="#A08BFF" stroke-width="2"/>' +
-      '<text x="240" y="186" fill="#E8ECF3" font-size="15" text-anchor="middle" font-weight="700">클러스터</text>' +
-      '<rect x="356" y="166" width="190" height="104" rx="12" fill="#26334A" stroke="#A08BFF" stroke-width="2"/>' +
-      '<text x="451" y="224" fill="#E8ECF3" font-size="15" text-anchor="middle" font-weight="700">센터 디스플레이</text>' +
-      '<circle cx="240" cy="270" r="74" fill="none" stroke="#3A4762" stroke-width="16"/>' +
-      "</svg>";
   }
 
   // ── 도우미 ───────────────────────────────────────────
