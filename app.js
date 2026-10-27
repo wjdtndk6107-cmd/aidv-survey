@@ -191,7 +191,7 @@
       '<div class="scene-side">' + pageCount() +
       '<h1><span class="sec-num">' + p.num + ".</span>장면 " + (p.index + 1) + " / " + state.order.length + "</h1>" +
       '<div class="brief">' + s.context.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" +
-      '<p class="watch-note"' + (rec.watched ? " hidden" : "") + ">영상을 끝까지 보시면 이곳에 질문이 나타나요.</p>" +
+      '<p class="watch-note">영상을 끝까지 시청하신 뒤 아래 질문에 응답해 주세요. 정답은 없으니 느끼신 그대로 답해 주시면 됩니다.</p>' +
       '<div class="scene-questions"' + (rec.watched ? "" : " hidden") + ">" +
       items.map(function (q, i) { return questionHTML(q, p.num + "-" + (i + 1)); }).join("") +
       '<p class="form-error" role="alert"></p>' +
@@ -243,7 +243,7 @@
       replay.hidden = false;
       if (!rec.watched) {
         rec.watched = true; rec.watchedAt = new Date().toISOString(); save();
-        note.hidden = true; qs.hidden = false;
+        qs.hidden = false;
         if (window.matchMedia("(max-width: 980px)").matches) qs.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
