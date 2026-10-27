@@ -57,7 +57,7 @@ window.SURVEY = {
 
   // ── 기본 정보 ─────────────────────────────────────────
   demographics: [
-    { key: "gender", type: "radio", text: "성별이 어떻게 되시나요?", options: ["남성", "여성", "응답하지 않음"] },
+    { key: "gender", type: "radio", text: "성별이 어떻게 되시나요?", options: ["남성", "여성"] },
     { key: "age", type: "radio", text: "연령대가 어떻게 되시나요?", options: ["만 19–29세", "30–39세", "40–49세", "50–59세", "60세 이상"] },
     { key: "experience", type: "radio", text: "운전 경력은 얼마나 되시나요?", options: ["1–3년 미만", "3–5년 미만", "5–10년 미만", "10년 이상"] },
     { key: "frequency", type: "radio", text: "평소 얼마나 자주 운전하시나요?", options: ["거의 매일", "주 3–5회", "주 1–2회", "월 1–3회", "그보다 적게"] },
