@@ -16,9 +16,18 @@
   var params = new URLSearchParams(location.search);
   if (params.has("reset")) { safeStore.remove(STORE_KEY); }
 
-  var state = safeStore.get(STORE_KEY) || newState();
-  if (state.finished) state = newState();
+  var state = safeStore.get(STORE_KEY);
+  if (!isUsable(state)) state = newState();
   save();
+
+  // 저장된 진행 기록이 지금 설문 구성과 맞는지 확인 (장면이 바뀌었거나 손상된 경우 새로 시작)
+  function isUsable(st) {
+    if (!st || st.finished || !Array.isArray(st.order) || typeof st.page !== "number") return false;
+    var ids = C.scenes.map(function (x) { return x.id; });
+    if (st.order.length !== ids.length) return false;
+    for (var i = 0; i < st.order.length; i++) if (ids.indexOf(st.order[i]) === -1) return false;
+    return true;
+  }
 
   function newState() {
     var ids = C.scenes.map(function (s) { return s.id; });
@@ -490,5 +499,19 @@
     return "P" + String(t.getFullYear()).slice(2) + pad(t.getMonth() + 1) + pad(t.getDate()) + "-" + rnd.toUpperCase();
   }
 
-  render();
+  try {
+    render();
+    try { sessionStorage.removeItem("aidv-retried"); } catch (e) {}
+  } catch (err) {
+    // 예상하지 못한 오류로 화면이 비지 않도록 한 번만 처음부터 다시 시작
+    var retried = false;
+    try { retried = sessionStorage.getItem("aidv-retried") === "1"; sessionStorage.setItem("aidv-retried", "1"); } catch (e) { retried = true; }
+    safeStore.remove(STORE_KEY);
+    if (!retried) { location.reload(); }
+    else {
+      app.innerHTML = '<section class="page"><h1>설문을 불러오지 못했어요</h1>' +
+        '<p class="lead">잠시 후 페이지를 새로고침해 주세요. 계속 같은 화면이 보이면 연구자에게 알려 주세요.</p></section>';
+    }
+    if (window.console) console.error(err);
+  }
 })();
