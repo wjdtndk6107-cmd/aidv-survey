@@ -61,7 +61,7 @@ window.SURVEY = {
     { key: "age", type: "radio", text: "연령대가 어떻게 되시나요?", options: ["만 19–29세", "30–39세", "40–49세", "50–59세", "60세 이상"] },
     { key: "experience", type: "radio", text: "운전 경력은 얼마나 되시나요?", options: ["1–3년 미만", "3–5년 미만", "5–10년 미만", "10년 이상"] },
     { key: "frequency", type: "radio", text: "평소 얼마나 자주 운전하시나요?", options: ["거의 매일", "주 3–5회", "주 1–2회", "월 1–3회", "그보다 적게"] },
-    { key: "voice_assistant", type: "radio", text: "차량 내 음성 비서(예: \"글레오\", \"안녕 메르세데스\" 등)를 사용해 보신 적이 있으신가요?",
+    { key: "voice_assistant", type: "radio", text: "차량 내 음성 비서(예: \"글레오\", \"안녕 벤츠\" 등)를 사용해 보신 적이 있으신가요?",
       options: ["사용해 본 적 없음", "있지만 거의 사용하지 않음", "가끔 사용", "자주 사용"] },
     { key: "smarthome", type: "radio", text: "스마트홈 기기나 차량-집 연동 서비스(Car-to-Home 등)를 사용해 보신 적이 있으신가요?", options: ["있음", "없음"] }
   ],
