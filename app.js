@@ -208,15 +208,28 @@
     var qs = app.querySelector(".scene-questions");
     var note = app.querySelector(".watch-note");
 
+    // 재생 횟수는 실제로 재생이 시작됐을 때만 셈
+    var countNext = false;
+    function failed() { cover.hidden = false; status.textContent = "재생되지 않았어요. 재생 버튼을 다시 눌러 주세요."; }
     function play() {
       video.currentTime = 0;
-      var pr = video.play();
-      if (pr && pr.catch) pr.catch(function () { cover.hidden = false; status.textContent = "재생 버튼을 눌러 주세요."; });
+      countNext = true;
       cover.hidden = true;
       replay.hidden = true;
-      rec.plays += 1; save();
-      status.textContent = "재생 중";
+      status.textContent = "불러오는 중";
+      var pr = video.play();
+      if (pr && pr.catch) pr.catch(function () {
+        // 탭 전환 직후 등 일시적으로 거부되면 한 번 더 시도
+        setTimeout(function () {
+          var p2 = video.play();
+          if (p2 && p2.catch) p2.catch(failed);
+        }, 300);
+      });
     }
+    video.addEventListener("playing", function () {
+      status.textContent = "재생 중";
+      if (countNext) { countNext = false; rec.plays += 1; save(); }
+    });
     app.querySelector("[data-play]").onclick = play;
     replay.onclick = play;
     video.addEventListener("timeupdate", function () {
