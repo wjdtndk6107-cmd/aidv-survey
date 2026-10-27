@@ -35,9 +35,9 @@ window.SURVEY = {
 
   // 각 장면에서 묻는 문항 (N은 페이지 번호로 자동 치환)
   sceneItems: [
-    { key: "appropriate", type: "likert", points: 7, text: "지금 이 시점에 이 정보를 알려주는 것이 적절하다고 느끼시나요?" },
-    { key: "useful", type: "likert", points: 7, text: "이 알림의 내용이 본인에게 도움이 된다고 생각하시나요?" },
-    { key: "interference", type: "likert", points: 7, text: "현재 주행 상황에서 이 알림을 확인하고 처리하는 동안 안전하게 주행하는 데 방해를 느끼셨나요?" },
+    { key: "appropriate", type: "likert", points: 7, text: "지금 시청하신 주행 상황에 AI Agent가 해당 정보를 알려주는 것이 적절하다고 느끼시나요?" },
+    { key: "useful", type: "likert", points: 7, text: "이 알림의 내용이 지금 시청하신 주행 상황과 무관하게 본인에게 도움이 된다고 생각하시나요?" },
+    { key: "interference", type: "likert", points: 7, text: "지금 시청하신 주행 상황에서 이 알림을 확인 및 처리하는 동안 안전하게 주행하는 데 방해를 느끼셨나요?" },
     { key: "acceptance", type: "likert", points: 7, text: "이 기능이 있다면 켜두고 사용하실 의향이 있으신가요?" },
     { key: "relevance", type: "likert", points: 7, text: "이 알림의 내용이 지금 하고 계신 운전과 직접 관련이 있다고 느끼시나요?" },
     { key: "urgency", type: "likert", points: 7, text: "이 정보를 지금 바로 알아야 할 만큼 긴급하다고 느끼시나요?" },
