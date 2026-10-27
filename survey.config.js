@@ -16,12 +16,12 @@ window.SURVEY = {
   // info: safety(주행·안전) / vehicle(차량·이동) / schedule(개인·일정) / home(생활·홈)
   scenes: [
     {
-      id: "H_cafe",
+      id: "H_schedule",
       load: "H",
-      info: "test",
-      video: "media/scene_H_cafe.mp4",
-      poster: "media/scene_H_cafe_poster.jpg",
-      message: "근처에 자주 가는 카페가 있어요. 경유지로 추가할까요?",
+      info: "schedule",
+      video: "media/scene_H_schedule.mp4",
+      poster: "media/scene_H_schedule_poster.jpg",
+      message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?",
       context: [
         "늦은 저녁, 차량이 많은 도심 도로를 달리고 있어요.",
         "앞쪽 교차로를 지나며 옆 차로로 옮겨 타야 하고, 바로 옆에는 다른 차가 가까이 붙어 있어요."
