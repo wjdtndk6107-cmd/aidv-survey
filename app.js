@@ -168,8 +168,6 @@
       "<li><b>보는 방법</b><span>영상마다 상황 설명을 먼저 읽고 재생해 주세요. 영상을 끝까지 보시면 질문이 나타나요.</span></li>" +
       "<li><b>응답</b><span>정답은 없으니 느끼신 그대로 답해 주시면 됩니다.</span></li>" +
       "</ul>" +
-      '<figure class="dash-figure"><img src="media/dash_guide.jpg" width="1600" height="890" alt="실제 차량 실내 사진에 HUD, 클러스터, 센터 디스플레이 위치를 표시한 그림">' +
-      "<figcaption>질문에 나오는 차량 화면 위치예요. HUD는 앞유리, 클러스터는 핸들 너머 계기판, 센터 디스플레이는 가운데 큰 화면이에요.</figcaption></figure>" +
       '<div class="actions"><button class="btn btn-ghost" data-prev>이전</button><button class="btn" data-next>영상 보러 가기</button></div>' +
       "</section>";
     app.querySelector("[data-prev]").onclick = function () { go(state.page - 1); };
@@ -293,6 +291,7 @@
     var h = '<div class="q" role="group" id="' + id + '" aria-labelledby="' + id + '_t">' +
       '<div class="q-title" id="' + id + '_t">' + (num ? '<span class="q-num">' + num + ".</span>" : "") +
       "<span>" + esc(q.text) + (q.optional ? ' <span class="q-optional">(선택)</span>' : "") + "</span></div>";
+    if (q.image) h += '<figure class="q-image"><img src="' + esc(q.image.src) + '" width="' + q.image.w + '" height="' + q.image.h + '" alt="' + esc(q.image.alt) + '" loading="lazy"></figure>';
     if (q.type === "likert") {
       h += '<div class="likert" style="--n:' + q.points + '">';
       for (var i = 1; i <= q.points; i++) {
