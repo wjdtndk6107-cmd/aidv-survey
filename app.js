@@ -55,6 +55,13 @@
   // ── 페이지 구성 ──────────────────────────────────────
   var SEC = { demo: 1, load: 2, practice: 3, main: 4, msg: 5, gaais: 6, end: 7 };
   var pages = [];
+  if (C.stimulusOnly) {
+    // 실험 자극물만 테스트: 본 장면만 차례로 보여 주고 끝냄
+    state.order.forEach(function (id, i) {
+      pages.push({ kind: "video", mode: "scene", num: SEC.main, id: id, clip: sceneById[id], index: i, total: state.order.length });
+    });
+    pages.push({ kind: "done" });
+  } else {
   pages.push({ kind: "welcome" });
   pages.push({ kind: "form", id: "elig", title: "참여 자격 확인", numbered: false,
     items: [{ key: "elig", type: "radio", text: "운전면허를 보유하고 계시며, 실제 운전 경력이 1년 이상이신가요?", options: ["예", "아니오"] }] });
@@ -91,8 +98,9 @@
     items: [{ key: "comment", type: "text", optional: true,
       text: "운전 중 AI 에이전트가 먼저 정보를 알려주는 것에 대해 추가로 하고 싶으신 의견이 있으신가요? 자유롭게 적어 주세요." }] });
   pages.push({ kind: "done" });
+  }
 
-  var STEPS = pages.length - 2; // 동의·완료 화면 제외
+  var STEPS = C.stimulusOnly ? pages.length - 1 : pages.length - 2; // 동의·완료 화면 제외
 
   // 검토용 미리보기에서만: 주소 끝에 #band-test 를 붙이면 방안 A 테스트 장면으로 바로 이동
   function reviewJump() {
@@ -119,7 +127,7 @@
     ({ welcome: renderWelcome, form: renderForm, intro: renderIntro, video: renderVideo, rest: renderRest, messages: renderMessages, done: renderDone })[p.kind](p);
     if (!C.ENDPOINT) app.insertAdjacentHTML("afterbegin", '<p class="review-badge">검토용 미리보기 · 응답이 저장되지 않아요</p>');
   }
-  function count() { return '<p class="page-count">' + state.page + " / " + STEPS + " 단계</p>"; }
+  function count() { return '<p class="page-count">' + (state.page + (C.stimulusOnly ? 1 : 0)) + " / " + STEPS + " 단계</p>"; }
   function heading(p, title) {
     return "<h1>" + (p.num ? '<span class="sec-num">' + p.num + ".</span>" : "") + esc(title || p.title) + "</h1>";
   }
@@ -207,11 +215,11 @@
     var head = '<header class="scene-head">' + count() + heading(p, title) +
       (ctx.length ? '<div class="brief">' + ctx.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" : "") +
       (isLoad ? '<p class="imagine"><strong>' + esc(C.loadCheck.instruction) + "</strong></p>"
-        : '<p class="imagine"><strong>“' + esc(C.sceneInstruction) + "”</strong></p>") +
+        : '<p class="imagine"><strong>“' + esc(c.overlayAt != null ? C.sceneInstruction.replace("영상 속에", "영상 아래에") : C.sceneInstruction) + "”</strong></p>") +
       "</header>";
 
     var media = '<div class="scene-media"><div class="screen">' +
-      '<video playsinline preload="auto" disablepictureinpicture' + (c.poster ? ' poster="' + esc(c.poster) + '"' : "") + ">" +
+      '<video playsinline webkit-playsinline preload="auto" disablepictureinpicture' + (c.poster ? ' poster="' + esc(c.poster) + '"' : "") + ">" +
       '<source src="' + esc(c.video) + '" type="video/mp4"></video>' +
       '<div class="screen-cover"><button class="play-btn" data-play>' +
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
@@ -243,8 +251,14 @@
     wireVideo(rec, c.overlayAt);
 
     function leave() { rec.ms += Date.now() - rec.enteredAt; save(); }
-    app.querySelector("[data-prev]").onclick = function () { leave(); go(state.page - 1); };
-    onNext(function () { if (!validate(keys)) return; leave(); go(state.page + 1); });
+    var prevBtn = app.querySelector("[data-prev]");
+    if (state.page === 0) prevBtn.style.visibility = "hidden";
+    prevBtn.onclick = function () { leave(); go(state.page - 1); };
+    onNext(function () {
+      if (!validate(keys)) return; leave();
+      if (C.stimulusOnly && pages[state.page + 1].kind === "done") return finish("complete");
+      go(state.page + 1);
+    });
   }
 
   function wireVideo(rec, overlayAt) {
@@ -256,6 +270,7 @@
     function failed() { cover.hidden = false; status.textContent = "재생되지 않았어요. 재생 버튼을 다시 눌러 주세요."; }
     function play() {
       video.currentTime = 0; countNext = true; cover.hidden = true; replay.hidden = true; status.textContent = "불러오는 중";
+      if (card) card.hidden = true;   // 다시 볼 때는 처음처럼 4초에 다시 나타남
       // 재생할 때 영상(과 아래 알림 띠)이 화면 안에 다 들어오도록 스크롤
       var stage = app.querySelector(".scene-media"), r = stage.getBoundingClientRect();
       if (r.top < 0 || r.bottom > window.innerHeight) stage.scrollIntoView({ behavior: "smooth", block: r.height > window.innerHeight ? "start" : "center" });
@@ -266,13 +281,13 @@
     app.querySelector("[data-play]").onclick = play;
     replay.onclick = play;
     // 알림 띠: 영상 시각이 overlayAt을 넘는 순간 표시 (가능하면 프레임 단위로 확인)
+    // 한 번 뜨면 다시 보기를 누를 때까지 그대로 유지 (재생 시각이 0으로 보고돼도 숨기지 않음)
     function syncCard(t) {
-      if (!card) return;
-      var on = t >= overlayAt;
-      if (on && card.hidden) {
+      if (!card || !card.hidden || video.paused && !video.ended && t < overlayAt) return;
+      if (t >= overlayAt) {
         card.hidden = false;
         if (rec.overlayShownAt == null) { rec.overlayShownAt = Math.round(t * 1000) / 1000; save(); }   // 실제로 뜬 영상 시각
-      } else if (!on && !card.hidden) card.hidden = true;
+      }
     }
     if (card && "requestVideoFrameCallback" in video) {
       var onFrame = function (now, meta) { syncCard(meta.mediaTime); video.requestVideoFrameCallback(onFrame); };
@@ -284,6 +299,7 @@
     });
     video.addEventListener("ended", function () {
       tl.style.width = "100%"; replay.hidden = false;
+      if (card) card.hidden = false;
       status.textContent = rec.watched ? "다시 보기를 마쳤어요." : (MQ_NARROW.matches ? "시청을 마쳤어요. 아래 질문에 응답해 주세요." : "시청을 마쳤어요. 오른쪽 질문에 응답해 주세요.");
       if (!rec.watched) {
         rec.watched = true; save(); qs.hidden = false;
@@ -312,6 +328,12 @@
 
   function renderDone() {
     var st = state.status;
+    if (C.stimulusOnly) {
+      app.innerHTML = '<section class="page"><h1>테스트 장면을 모두 봤어요</h1><p class="lead">처음부터 다시 보려면 아래 버튼을 눌러 주세요. 장면 순서는 다시 무작위로 섞여요.</p>' +
+        '<div class="actions"><span></span><button class="btn" data-restart>처음부터 다시 보기</button></div></section>';
+      app.querySelector("[data-restart]").onclick = function () { safeStore.remove(STORE_KEY); location.reload(); };
+      return;
+    }
     var title = st === "complete" ? "응답이 제출되었어요" : "참여해 주셔서 감사합니다";
     var body = st === "complete" ? "소중한 시간을 내어 주셔서 감사합니다. 이제 창을 닫으셔도 됩니다."
       : st === "screened_out" ? "이번 조사는 운전면허를 보유하고 운전 경력이 1년 이상인 분을 대상으로 하고 있어요. 관심 가져 주셔서 감사합니다."

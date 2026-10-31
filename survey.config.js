@@ -7,7 +7,9 @@ window.SURVEY = {
   // 검토용 빌드는 저장 주소를 비워 둠 (응답이 시트에 쌓이지 않고 브라우저에만 남음)
   ENDPOINT: "",
   LIVE_ENDPOINT: "https://script.google.com/macros/s/AKfycbwESnM08oVafTKHv6_l5I3w37s7tVzD-Gt05pruVEwIRovNAjOUBBxoVGTfOz26WLCy/exec",
-  version: "v2-test3-band",
+  version: "v2-stim-band",
+  // true: 사전 설문 등은 건너뛰고 실험 자극물(본 장면)만 테스트
+  stimulusOnly: true,
 
   title: "차량 내 AI 에이전트의 선제적 정보 제공에 대한 사용자 인식 조사",
 
