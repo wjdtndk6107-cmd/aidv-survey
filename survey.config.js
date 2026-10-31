@@ -7,7 +7,7 @@ window.SURVEY = {
   // 검토용 빌드는 저장 주소를 비워 둠 (응답이 시트에 쌓이지 않고 브라우저에만 남음)
   ENDPOINT: "",
   LIVE_ENDPOINT: "https://script.google.com/macros/s/AKfycbwESnM08oVafTKHv6_l5I3w37s7tVzD-Gt05pruVEwIRovNAjOUBBxoVGTfOz26WLCy/exec",
-  version: "v2-test3",
+  version: "v2-test3-band",
 
   title: "차량 내 AI 에이전트의 선제적 정보 제공에 대한 사용자 인식 조사",
 
@@ -70,7 +70,8 @@ window.SURVEY = {
       message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
     { id: "M_T2", load: "M", info: "T2", video: "media/scene_M_T2.mp4", poster: "media/scene_M_T2_poster.jpg",
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
-    { id: "H_T3", load: "H", info: "T3", video: "media/scene_H_T3.mp4", poster: "media/scene_H_T3_poster.jpg",
+    // 방안 A 테스트: 알림 없는 원본 영상 + 영상 아래 띠에 4.0초에 알림 표시 (overlayAt)
+    { id: "H_T3", load: "H", info: "T3", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" }
   ],
 

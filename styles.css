@@ -249,3 +249,17 @@ body.cabin .group .q.missing .q-title { color: #FDBA74; }
   .scale-head { font-size: 12px; padding: 7px 10px; }
   .rest-timer span { font-size: 72px; }
 }
+
+/* ── 방안 A: 영상 바로 아래 알림 띠 (영상은 가리지 않음) ── */
+.screen:has(+ .agent-band) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.agent-band { display: flex; align-items: center; justify-content: center; min-height: 84px; padding: 14px 18px; background: #070B12; border-radius: 0 0 22px 22px; box-shadow: 0 0 0 1px var(--cabin-line), 0 30px 80px rgba(0,0,0,.35); }
+.agent-card { display: flex; align-items: center; gap: 14px; max-width: 100%; padding: 12px 22px 12px 14px; border-radius: 18px; background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 8px 24px rgba(0,0,0,.4); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); animation: band-in .45s cubic-bezier(.2,.8,.2,1); }
+.agent-card p { margin: 0; color: #fff; font-weight: 700; font-size: clamp(15px, 1.5vw, 19px); line-height: 1.45; letter-spacing: -0.02em; }
+.agent-icon { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(160deg, #7C5CFF, #569CFA); }
+.agent-icon svg { width: 22px; height: 22px; fill: #fff; }
+@keyframes band-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 560px) {
+  .agent-band { min-height: 72px; padding: 10px 12px; border-radius: 0 0 18px 18px; }
+  .agent-card { padding: 10px 14px 10px 10px; gap: 10px; }
+  .agent-icon { width: 30px; height: 30px; }
+}

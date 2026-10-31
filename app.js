@@ -94,6 +94,15 @@
 
   var STEPS = pages.length - 2; // 동의·완료 화면 제외
 
+  // 검토용 미리보기에서만: 주소 끝에 #band-test 를 붙이면 방안 A 테스트 장면으로 바로 이동
+  function reviewJump() {
+    if (C.ENDPOINT || location.hash !== "#band-test") return false;
+    for (var i = 0; i < pages.length; i++) if (pages[i].clip && pages[i].clip.overlayAt != null) { state.page = i; save(); return true; }
+    return false;
+  }
+  reviewJump();
+  window.addEventListener("hashchange", function () { if (reviewJump()) { render(); window.scrollTo(0, 0); } });
+
   // ── 렌더링 ───────────────────────────────────────────
   function go(n) {
     state.page = Math.max(0, Math.min(pages.length - 1, n));
@@ -207,6 +216,9 @@
       '<div class="screen-cover"><button class="play-btn" data-play>' +
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
       "<span>영상 재생</span></button></div></div>" +
+      (c.overlayAt != null ? '<div class="agent-band"><div class="agent-card" hidden>' +
+        '<span class="agent-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 3.5l1.6 4.9 4.9 1.6-4.9 1.6L10 16.5l-1.6-4.9L3.5 10l4.9-1.6z"/><path d="M17.5 13.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg></span>' +
+        '<p>“' + esc(c.message) + "”</p></div></div>" : "") +
       '<div class="screen-status"><span class="status-text">위 설명을 읽고 재생해 주세요.</span>' +
       '<span class="timeline" aria-hidden="true"><i></i></span><button class="replay" data-replay hidden>다시 보기</button></div></div>';
 
@@ -228,28 +240,48 @@
       '<div class="scene-questions"' + (rec.watched ? "" : " hidden") + ">" + qhtml + navHTML("다음") + "</div></div></section>";
     bind();
     markGroups();
-    wireVideo(rec);
+    wireVideo(rec, c.overlayAt);
 
     function leave() { rec.ms += Date.now() - rec.enteredAt; save(); }
     app.querySelector("[data-prev]").onclick = function () { leave(); go(state.page - 1); };
     onNext(function () { if (!validate(keys)) return; leave(); go(state.page + 1); });
   }
 
-  function wireVideo(rec) {
+  function wireVideo(rec, overlayAt) {
     var video = app.querySelector("video"), cover = app.querySelector(".screen-cover");
+    var card = app.querySelector(".agent-card");
     var status = app.querySelector(".status-text"), replay = app.querySelector("[data-replay]");
     var tl = app.querySelector(".timeline i"), qs = app.querySelector(".scene-questions");
     var countNext = false;
     function failed() { cover.hidden = false; status.textContent = "재생되지 않았어요. 재생 버튼을 다시 눌러 주세요."; }
     function play() {
       video.currentTime = 0; countNext = true; cover.hidden = true; replay.hidden = true; status.textContent = "불러오는 중";
+      // 재생할 때 영상(과 아래 알림 띠)이 화면 안에 다 들어오도록 스크롤
+      var stage = app.querySelector(".scene-media"), r = stage.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) stage.scrollIntoView({ behavior: "smooth", block: r.height > window.innerHeight ? "start" : "center" });
       var pr = video.play();
       if (pr && pr.catch) pr.catch(function () { setTimeout(function () { var p2 = video.play(); if (p2 && p2.catch) p2.catch(failed); }, 300); });
     }
     video.addEventListener("playing", function () { status.textContent = "재생 중"; if (countNext) { countNext = false; rec.plays += 1; save(); } });
     app.querySelector("[data-play]").onclick = play;
     replay.onclick = play;
-    video.addEventListener("timeupdate", function () { if (video.duration) tl.style.width = (video.currentTime / video.duration * 100) + "%"; });
+    // 알림 띠: 영상 시각이 overlayAt을 넘는 순간 표시 (가능하면 프레임 단위로 확인)
+    function syncCard(t) {
+      if (!card) return;
+      var on = t >= overlayAt;
+      if (on && card.hidden) {
+        card.hidden = false;
+        if (rec.overlayShownAt == null) { rec.overlayShownAt = Math.round(t * 1000) / 1000; save(); }   // 실제로 뜬 영상 시각
+      } else if (!on && !card.hidden) card.hidden = true;
+    }
+    if (card && "requestVideoFrameCallback" in video) {
+      var onFrame = function (now, meta) { syncCard(meta.mediaTime); video.requestVideoFrameCallback(onFrame); };
+      video.requestVideoFrameCallback(onFrame);
+    }
+    video.addEventListener("timeupdate", function () {
+      if (video.duration) tl.style.width = (video.currentTime / video.duration * 100) + "%";
+      syncCard(video.currentTime);
+    });
     video.addEventListener("ended", function () {
       tl.style.width = "100%"; replay.hidden = false;
       status.textContent = rec.watched ? "다시 보기를 마쳤어요." : (MQ_NARROW.matches ? "시청을 마쳤어요. 아래 질문에 응답해 주세요." : "시청을 마쳤어요. 오른쪽 질문에 응답해 주세요.");
@@ -258,7 +290,7 @@
         if (MQ_NARROW.matches) qs.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
-    if (rec.watched) { cover.hidden = true; replay.hidden = false; status.textContent = "이미 시청한 영상이에요. 필요하면 다시 볼 수 있어요."; }
+    if (rec.watched) { cover.hidden = true; replay.hidden = false; status.textContent = "이미 시청한 영상이에요. 필요하면 다시 볼 수 있어요."; if (card) card.hidden = false; }
   }
 
   function renderMessages(p) {
@@ -433,7 +465,8 @@
       var s = sceneById[id], rec = state.rec[id] || {};
       if (a[id + ".AC"] === undefined) return;
       var r = { pid: state.pid, block: s.practice ? "practice" : "scene", item_id: id, load: s.load, info: s.info, position: s.practice ? 0 : i,
-        message: s.message, plays: rec.plays || 0, time_sec: Math.round((rec.ms || 0) / 1000) };
+        message: s.message, alert_mode: s.overlayAt != null ? "band" : "in_video", alert_shown_at: rec.overlayShownAt != null ? rec.overlayShownAt : "",
+        plays: rec.plays || 0, time_sec: Math.round((rec.ms || 0) / 1000) };
       var likerts = [];
       C.sceneGroups.forEach(function (g) {
         var gv = [];
