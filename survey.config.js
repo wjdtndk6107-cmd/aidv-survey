@@ -1,15 +1,14 @@
 /**
- * 설문 내용 설정 (v2 – "[v1] 설문 문항 전체 (질문형)" 문서 기준)
- * 흐름: 동의 → 자격 → 블록1 사전 설문 → 블록2 주행 부하 점검 → 블록3 연습 → 블록4 본 실험 → 블록5 메시지 속성 → AI 태도(GAAIS-K) → 마무리
+ * 설문 내용 설정 (v3 – 논문 초안 <표 2>·<표 3>·<표 4>, 3-3 절차 기준)
+ * 흐름: 동의 → 자격 → 블록1 사전 설문 → 블록2 주행 부하 점검 → 블록3 연습 → 블록4 본 실험 (5번째 장면 뒤 집중도 점검) → 블록5 메시지 속성 → AI 태도(GAAIS-K) → 마무리
  * 문항·장면을 바꾸려면 이 파일만 수정하면 됩니다.
  */
 window.SURVEY = {
-  // 검토용 빌드는 저장 주소를 비워 둠 (응답이 시트에 쌓이지 않고 브라우저에만 남음)
-  ENDPOINT: "",
-  LIVE_ENDPOINT: "https://script.google.com/macros/s/AKfycbwESnM08oVafTKHv6_l5I3w37s7tVzD-Gt05pruVEwIRovNAjOUBBxoVGTfOz26WLCy/exec",
-  version: "v2-band-all",
-  // true: 사전 설문 등은 건너뛰고 실험 자극물(본 장면)만 테스트
-  stimulusOnly: true,
+  // 응답 저장 주소 (구글 Apps Script). 비워 두면 검토용 미리보기로 동작 (저장 안 됨)
+  ENDPOINT: "https://script.google.com/macros/s/AKfycbwESnM08oVafTKHv6_l5I3w37s7tVzD-Gt05pruVEwIRovNAjOUBBxoVGTfOz26WLCy/exec",
+  version: "v3-main",
+  // true: 사전 설문 등은 건너뛰고 실험 자극물만 보여 줌 (주소 끝에 ?stim=1 을 붙여도 같음, 이때 응답은 저장 안 됨)
+  stimulusOnly: false,
 
   title: "차량 내 AI 에이전트의 선제적 정보 제공에 대한 사용자 인식 조사",
 
@@ -62,16 +61,35 @@ window.SURVEY = {
     context: ["응답 방법을 익히기 위한 연습 장면이에요. 이 장면의 응답은 분석에 포함되지 않아요."]
   },
 
-  // 테스트: 부하 3 × 정보 유형 3 중 대각선 3장면 (본 실험은 9장면)
-  // info: T1 주행·차량 / T2 개인·일정 / T3 생활·홈
+  // 본 실험: 주행 부하 3 × 정보 유형 3 = 9장면 (무작위 순서)
+  // 영상은 부하별 알림 없는 원본을 쓰고, 알림은 4.0초에 영상 아래 띠로 표시 (전방 시야 가림 없음)
+  // info: T1 주행·차량 / T2 개인·일정 / T3 생활·홈 (논문 <표 2>)
   randomizeScenes: true,
-  restAfter: [2],          // 이 번호의 장면 뒤에 휴식 (본 실험 9장면은 [5])
-  restSeconds: 60,
+  // 이 번호의 장면 뒤에 집중도 점검 페이지 (휴식 대신)
+  checkAfter: 5,
+  checkpoint: {
+    title: "잠깐, 집중도 확인",
+    lead: "절반 넘게 오셨어요. 남은 장면으로 넘어가기 전에 두 가지만 여쭤볼게요.",
+    recall: "방금 본 장면에서 AI 에이전트가 보낸 알림은 무엇이었나요?",
+    focus: "지금 영상과 질문에 얼마나 집중하고 계신가요?",
+    focusEnds: ["전혀 집중하지 못하고 있다", "보통이다", "매우 집중하고 있다"]
+  },
   scenes: [
-    // 알림 표시: 알림 없는 원본 영상 + 영상 아래 띠에 4.0초에 표시 (전방 시야 가림 없음)
     { id: "L_T1", load: "L", info: "T1", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
       message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
+    { id: "L_T2", load: "L", info: "T2", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
+      message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
+    { id: "L_T3", load: "L", info: "T3", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
+      message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" },
+    { id: "M_T1", load: "M", info: "T1", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
+      message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
     { id: "M_T2", load: "M", info: "T2", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
+      message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
+    { id: "M_T3", load: "M", info: "T3", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
+      message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" },
+    { id: "H_T1", load: "H", info: "T1", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
+      message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
+    { id: "H_T2", load: "H", info: "T2", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
     { id: "H_T3", load: "H", info: "T3", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" }

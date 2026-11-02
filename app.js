@@ -1,8 +1,11 @@
-/* 설문 진행 로직 v2 – 내용은 survey.config.js */
+/* 설문 진행 로직 v3 – 내용은 survey.config.js */
 (function () {
   "use strict";
   var C = window.SURVEY;
-  var STORE_KEY = "aidv-survey-state-v2";
+  var params = new URLSearchParams(location.search);
+  // 자극물 점검 모드: 설정(stimulusOnly) 또는 주소의 ?stim=1. 연습+본 장면만 보여 주고 응답은 시트에 보내지 않음
+  var STIM = !!C.stimulusOnly || params.get("stim") === "1";
+  var STORE_KEY = "aidv-survey-state-v3" + (STIM ? "-stim" : "");
   var app = document.getElementById("app");
   var fill = document.querySelector(".progress-fill");
   var bar = document.querySelector(".progress");
@@ -15,7 +18,6 @@
   };
 
   // ── 상태 ────────────────────────────────────────────
-  var params = new URLSearchParams(location.search);
   if (params.has("reset")) safeStore.remove(STORE_KEY);
 
   var sceneById = {};
@@ -55,8 +57,9 @@
   // ── 페이지 구성 ──────────────────────────────────────
   var SEC = { demo: 1, load: 2, practice: 3, main: 4, msg: 5, gaais: 6, end: 7 };
   var pages = [];
-  if (C.stimulusOnly) {
-    // 실험 자극물만 테스트: 본 장면만 차례로 보여 주고 끝냄
+  if (STIM) {
+    // 자극물 점검: 연습 장면과 본 장면만 차례로 보여 주고 끝냄
+    pages.push({ kind: "video", mode: "scene", num: SEC.practice, id: C.practice.id, clip: C.practice, practice: true });
     state.order.forEach(function (id, i) {
       pages.push({ kind: "video", mode: "scene", num: SEC.main, id: id, clip: sceneById[id], index: i, total: state.order.length });
     });
@@ -82,11 +85,11 @@
   pages.push({ kind: "intro", id: "mainIntro", num: SEC.main, title: "본 장면 시작",
     lead: ["연습을 마쳤어요. 지금부터 본 장면 " + state.order.length + "개가 무작위 순서로 이어집니다.",
       "장면마다 상황과 알림이 달라요. 매번 방금 본 장면만 떠올리며 답해 주세요." +
-      (C.restAfter.length ? " 중간에 1분 쉬어 가는 시간이 있어요." : "")],
+      (C.checkAfter ? " 중간에 집중도를 확인하는 짧은 질문이 한 번 있어요." : "")],
     next: "본 장면 시작하기" });
   state.order.forEach(function (id, i) {
     pages.push({ kind: "video", mode: "scene", num: SEC.main, id: id, clip: sceneById[id], index: i, total: state.order.length });
-    if (C.restAfter.indexOf(i + 1) !== -1 && i + 1 < state.order.length) pages.push({ kind: "rest", left: state.order.length - (i + 1) });
+    if (C.checkAfter === i + 1 && i + 1 < state.order.length) pages.push(checkPage(id, state.order.length - (i + 1)));
   });
   pages.push({ kind: "messages", num: SEC.msg, title: "알림 내용 평가" });
   pages.push({ kind: "form", id: "gaais", num: SEC.gaais, title: "AI에 대한 일반적인 태도",
@@ -100,7 +103,18 @@
   pages.push({ kind: "done" });
   }
 
-  var STEPS = C.stimulusOnly ? pages.length - 1 : pages.length - 2; // 동의·완료 화면 제외
+  // 집중도 점검: 직전 장면의 알림을 고르는 회상 문항 + 현재 집중도 자기 보고
+  function checkPage(prevId, left) {
+    var k = C.checkpoint;
+    return { kind: "form", id: "check", title: k.title, numbered: false, prevScene: prevId,
+      lead: [k.lead, "응답을 마치면 남은 장면 " + left + "개가 이어져요."],
+      items: [
+        { key: "CHK_RECALL", type: "radio", text: k.recall, options: C.messageAttr.messages.map(function (m) { return m.text; }) },
+        { key: "CHK_FOCUS", type: "likert", points: 7, text: k.focus, ends: k.focusEnds }
+      ] };
+  }
+
+  var STEPS = STIM ? pages.length - 1 : pages.length - 2; // 동의·완료 화면 제외
 
   // 검토용 미리보기에서만: 주소 끝에 #band-test 를 붙이면 방안 A 테스트 장면으로 바로 이동
   function reviewJump() {
@@ -120,14 +134,15 @@
   }
   function render() {
     var p = pages[state.page];
-    document.body.classList.toggle("cabin", p.kind === "video" || p.kind === "rest");
+    document.body.classList.toggle("cabin", p.kind === "video");
     var pct = Math.round((state.page / (pages.length - 1)) * 100);
     fill.style.width = pct + "%";
     bar.setAttribute("aria-valuenow", String(pct));
-    ({ welcome: renderWelcome, form: renderForm, intro: renderIntro, video: renderVideo, rest: renderRest, messages: renderMessages, done: renderDone })[p.kind](p);
-    if (!C.ENDPOINT) app.insertAdjacentHTML("afterbegin", '<p class="review-badge">검토용 미리보기 · 응답이 저장되지 않아요</p>');
+    ({ welcome: renderWelcome, form: renderForm, intro: renderIntro, video: renderVideo, messages: renderMessages, done: renderDone })[p.kind](p);
+    if (STIM) app.insertAdjacentHTML("afterbegin", '<p class="review-badge">자극물 점검 모드 · 응답이 저장되지 않아요</p>');
+    else if (!C.ENDPOINT) app.insertAdjacentHTML("afterbegin", '<p class="review-badge">검토용 미리보기 · 응답이 저장되지 않아요</p>');
   }
-  function count() { return '<p class="page-count">' + (state.page + (C.stimulusOnly ? 1 : 0)) + " / " + STEPS + " 단계</p>"; }
+  function count() { return '<p class="page-count">' + (state.page + (STIM ? 1 : 0)) + " / " + STEPS + " 단계</p>"; }
   function heading(p, title) {
     return "<h1>" + (p.num ? '<span class="sec-num">' + p.num + ".</span>" : "") + esc(title || p.title) + "</h1>";
   }
@@ -139,7 +154,7 @@
 
   function renderWelcome() {
     var nScenes = state.order.length + 1;
-    var mins = Math.round(4 + C.loadCheck.videos.length * 0.8 + nScenes * 2.3 + 3);
+    var mins = Math.round(4 + C.loadCheck.videos.length * 0.8 + nScenes * 2.3 + 1 + 3);
     app.innerHTML = '<section class="page">' +
       "<h1>" + esc(C.title) + "</h1>" +
       '<p class="lead">레벨 2 부분 자율주행(차로 유지·속도 조절 보조) 상황에서 차량 AI가 운전자에게 먼저 정보를 알려줄 때, 주행 상황과 정보 종류에 따라 이를 어떻게 받아들이는지 알아보기 위한 연구예요.</p>' +
@@ -183,24 +198,6 @@
     h += navHTML(p.next) + "</section>";
     app.innerHTML = h;
     onPrev(); onNext(function () { go(state.page + 1); });
-  }
-
-  function renderRest(p) {
-    var left = C.restSeconds || 60;
-    app.innerHTML = '<section class="page rest">' +
-      "<h1>잠시 쉬어 갈게요</h1>" +
-      '<p class="lead">화면에서 잠깐 눈을 떼고 쉬어 주세요. 남은 장면은 ' + p.left + "개예요.</p>" +
-      '<p class="rest-timer" aria-live="polite"><span>' + left + "</span>초</p>" +
-      navHTML("남은 장면 이어서 보기", true) + "</section>";
-    var btn = app.querySelector("[data-next]"), out = app.querySelector(".rest-timer span");
-    btn.disabled = true;
-    var end = Date.now() + left * 1000;
-    var t = setInterval(function () {
-      var s = Math.max(0, Math.ceil((end - Date.now()) / 1000));
-      out.textContent = s;
-      if (s === 0) { clearInterval(t); btn.disabled = false; app.querySelector(".rest-timer").classList.add("done"); }
-    }, 250);
-    btn.onclick = function () { clearInterval(t); go(state.page + 1); };
   }
 
   // 영상 + 문항 페이지 (부하 점검 / 연습 / 본 장면)
@@ -256,7 +253,7 @@
     prevBtn.onclick = function () { leave(); go(state.page - 1); };
     onNext(function () {
       if (!validate(keys)) return; leave();
-      if (C.stimulusOnly && pages[state.page + 1].kind === "done") return finish("complete");
+      if (STIM && pages[state.page + 1].kind === "done") return finish("complete");
       go(state.page + 1);
     });
   }
@@ -328,8 +325,8 @@
 
   function renderDone() {
     var st = state.status;
-    if (C.stimulusOnly) {
-      app.innerHTML = '<section class="page"><h1>테스트 장면을 모두 봤어요</h1><p class="lead">처음부터 다시 보려면 아래 버튼을 눌러 주세요. 장면 순서는 다시 무작위로 섞여요.</p>' +
+    if (STIM) {
+      app.innerHTML = '<section class="page"><h1>점검할 장면을 모두 봤어요</h1><p class="lead">처음부터 다시 보려면 아래 버튼을 눌러 주세요. 장면 순서는 다시 무작위로 섞여요.</p>' +
         '<div class="actions"><span></span><button class="btn" data-restart>처음부터 다시 보기</button></div></section>';
       app.querySelector("[data-restart]").onclick = function () { safeStore.remove(STORE_KEY); location.reload(); };
       return;
@@ -485,7 +482,7 @@
     });
     [C.practice.id].concat(state.order).forEach(function (id, i) {
       var s = sceneById[id], rec = state.rec[id] || {};
-      if (a[id + ".AC"] === undefined) return;
+      if (a[id + ".AC"] === undefined) return;   // 응답하지 않은 장면은 건너뜀
       var r = { pid: state.pid, block: s.practice ? "practice" : "scene", item_id: id, load: s.load, info: s.info, position: s.practice ? 0 : i,
         message: s.message, alert_mode: s.overlayAt != null ? "band" : "in_video", alert_shown_at: rec.overlayShownAt != null ? rec.overlayShownAt : "",
         plays: rec.plays || 0, time_sec: Math.round((rec.ms || 0) / 1000) };
@@ -507,6 +504,12 @@
       C.messageAttr.items.forEach(function (q) { r[q.key] = a["msg." + id + "." + q.key]; });
       long.push(r);
     });
+    // 집중도 점검: 직전 장면(checkAfter번째)의 알림을 맞게 골랐는지
+    if (a.CHK_RECALL !== undefined && C.checkAfter) {
+      var prev = sceneById[state.order[C.checkAfter - 1]];
+      wide.CHK_after_scene = prev.id;
+      wide.CHK_RECALL_correct = a.CHK_RECALL === prev.message ? 1 : 0;
+    }
     var sc = long.filter(function (r) { return r.block === "scene"; });
     wide.AC_correct_rate = sc.length ? round2(mean(sc.map(function (r) { return r.AC_correct; }))) : "";
     wide.straightline_scenes = sc.filter(function (r) { return r.straightline; }).length;
@@ -516,7 +519,7 @@
   function submit() {
     var payload = buildPayload();
     safeStore.set("aidv-survey-backup-" + state.pid, payload);
-    if (!C.ENDPOINT) { state.submit = { state: "no-endpoint" }; save(); showSubmitState(); return; }
+    if (!C.ENDPOINT || STIM) { state.submit = { state: "no-endpoint" }; save(); showSubmitState(); return; }
     fetch(C.ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload), keepalive: true })
       .then(function () { state.submit = { state: "sent" }; save(); showSubmitState(); })
       .catch(function () { state.submit = { state: "failed" }; save(); showSubmitState(); });
