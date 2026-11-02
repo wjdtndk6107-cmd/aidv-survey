@@ -126,12 +126,28 @@
   window.addEventListener("hashchange", function () { if (reviewJump()) { render(); window.scrollTo(0, 0); } });
 
   // ── 렌더링 ───────────────────────────────────────────
-  function go(n) {
+  // 페이지 이동. 브라우저 뒤로가기/앞으로가기로도 이전 응답 화면을 오갈 수 있도록 방문 기록에 남김
+  var leaveHook = null;   // 영상 페이지를 떠날 때 머문 시간을 더하기 위한 함수
+  function go(n, fromHistory) {
+    if (leaveHook) { leaveHook(); leaveHook = null; }
     state.page = Math.max(0, Math.min(pages.length - 1, n));
-    save(); render();
+    state.maxPage = Math.max(state.maxPage || 0, state.page);
+    save();
+    if (!fromHistory) { try { history.pushState({ p: state.page }, ""); } catch (e) {} }
+    render();
     window.scrollTo(0, 0);
     app.focus({ preventScroll: true });
   }
+  try { history.replaceState({ p: state.page }, ""); } catch (e) {}
+  window.addEventListener("popstate", function (e) {
+    var target = e.state && typeof e.state.p === "number" ? e.state.p : 0;
+    // 제출을 마쳤거나, 아직 가 본 적 없는 페이지(문항 검증을 건너뛰게 됨)로는 이동하지 않고 현재 화면 유지
+    if (state.finished || target > (state.maxPage || 0)) {
+      try { history.pushState({ p: state.page }, ""); } catch (err) {}
+      return;
+    }
+    go(target, true);
+  });
   function render() {
     var p = pages[state.page];
     document.body.classList.toggle("cabin", p.kind === "video");
@@ -251,7 +267,8 @@
     markGroups();
     wireVideo(rec, c.overlayAt);
 
-    function leave() { rec.ms += Date.now() - rec.enteredAt; save(); }
+    function leave() { if (rec.enteredAt) { rec.ms += Date.now() - rec.enteredAt; rec.enteredAt = null; save(); } }
+    leaveHook = leave;
     var prevBtn = app.querySelector("[data-prev]");
     if (state.page === 0) prevBtn.style.visibility = "hidden";
     prevBtn.onclick = function () { leave(); go(state.page - 1); };
