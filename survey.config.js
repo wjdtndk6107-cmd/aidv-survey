@@ -58,7 +58,7 @@ window.SURVEY = {
     id: "practice", load: "M", info: "practice", practice: true,
     video: "media/practice_clean.mp4", poster: "media/practice_clean_poster.jpg", overlayAt: 4.0,
     message: "앞 유리에 빗방울이 감지됐어요. 와이퍼를 켤까요?",
-    context: ["응답 방법을 익히기 위한 연습 장면이에요. 이 장면의 응답은 분석에 포함되지 않아요."]
+    context: ["늦은 저녁, 신호가 바뀐 뒤 앞차들을 따라 도심 도로를 천천히 출발하고 있어요.", "속도를 조금씩 올리며 횡단보도와 교차로를 지나는 중이에요.", "응답 방법을 익히기 위한 연습 장면이에요. 이 장면의 응답은 분석에 포함되지 않아요."]
   },
 
   // 본 실험: 주행 부하 3 × 정보 유형 3 = 9장면 (무작위 순서)
