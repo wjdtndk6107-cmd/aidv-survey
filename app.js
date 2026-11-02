@@ -201,7 +201,6 @@
   function renderForm(p) {
     var h = '<section class="page">' + count() + heading(p);
     (p.lead || []).forEach(function (l) { h += '<p class="lead">' + esc(l) + "</p>"; });
-    if (p.scaleKey) h += '<span class="scale-key">' + esc(p.scaleKey) + "</span>";
     p.items.forEach(function (q, i) { h += itemHTML(q, p.numbered === false ? null : p.num + "-" + (i + 1)); });
     h += navHTML(p.submit ? "응답 제출하기" : "다음") + "</section>";
     app.innerHTML = h;
@@ -375,7 +374,7 @@
     if (g.title) h += '<h2 class="group-title"><span class="group-check" aria-hidden="true"></span>' + esc(g.title) + "</h2>";
     if (g.prompt) h += '<p class="group-prompt">' + esc(g.prompt) + "</p>";
     if (g.likert) {
-      h += '<div class="scale-head" aria-hidden="true"><span>1 ' + esc(C.scale7[0]) + "</span><span>4 " + esc(C.scale7[1]) + "</span><span>7 " + esc(C.scale7[2]) + "</span></div>";
+      // 척도 기준은 문항마다 아래에 표시되므로 묶음 위의 공통 척도 안내는 두지 않음
       g.items.forEach(function (q, i) { h += itemHTML({ key: q.key, type: "likert", points: 7, text: q.text, ends: C.scale7, row: true }, sec + "-" + (start + i + 1)); });
     } else {
       g.items.forEach(function (q, i) { h += itemHTML(q, sec + "-" + (start + i + 1)); });
