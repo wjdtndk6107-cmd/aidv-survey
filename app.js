@@ -18,7 +18,12 @@
   };
 
   // ── 상태 ────────────────────────────────────────────
-  if (params.has("reset")) safeStore.remove(STORE_KEY);
+  // ?reset=1: 저장된 진행 기록을 지우고 첫 화면부터 시작. 새로고침해도 다시 지워지지 않도록 주소에서 뺌
+  if (params.has("reset")) {
+    safeStore.remove(STORE_KEY);
+    params.delete("reset");
+    try { history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash); } catch (e) {}
+  }
 
   var sceneById = {};
   C.scenes.forEach(function (s) { sceneById[s.id] = s; });
