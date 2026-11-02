@@ -157,8 +157,9 @@
     var mins = Math.round(4 + C.loadCheck.videos.length * 0.8 + nScenes * 2.3 + 1 + 3);
     app.innerHTML = '<section class="page">' +
       "<h1>" + esc(C.title) + "</h1>" +
-      '<p class="lead">안녕하십니까. 본 설문은 국민대학교 스마트경험디자인학과 AI디자인랩 정수아 연구원이 진행하는 연구입니다.</p>' +
-      '<p class="lead">레벨 2 부분 자율주행(차로 유지·속도 조절 보조) 상황에서 차량 AI가 운전자에게 먼저 정보를 알려줄 때, 주행 상황과 정보 종류에 따라 이를 어떻게 받아들이는지 알아보기 위한 연구입니다.</p>' +
+      '<p class="lead">안녕하세요. 국민대학교 스마트경험디자인학과 AI디자인랩 정수아 연구원입니다.</p>' +
+      '<p class="lead">본 연구는 레벨 2 차량에서 AI가 운전자에게 먼저 정보를 알려줄 때, 주행 상황과 정보 종류에 따라 이를 어떻게 받아들이는지 알아보기 위한 연구입니다.</p>' +
+      '<p class="lead">본 설문 데이터는 연구 목적으로만 사용되며 그 이외의 목적으로는 활용되지 않습니다.</p>' +
       '<ul class="facts">' +
       "<li><b>소요 시간</b><span>약 " + mins + "분</span></li>" +
       "<li><b>진행 순서</b><span>사전 설문 → 주행 영상 " + C.loadCheck.videos.length + "개 평가 → 알림 장면 " + state.order.length + "개 → 알림 내용 평가 → AI 태도</span></li>" +
