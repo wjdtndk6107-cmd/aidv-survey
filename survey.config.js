@@ -7,7 +7,7 @@ window.SURVEY = {
   // 검토용 빌드는 저장 주소를 비워 둠 (응답이 시트에 쌓이지 않고 브라우저에만 남음)
   ENDPOINT: "",
   LIVE_ENDPOINT: "https://script.google.com/macros/s/AKfycbwESnM08oVafTKHv6_l5I3w37s7tVzD-Gt05pruVEwIRovNAjOUBBxoVGTfOz26WLCy/exec",
-  version: "v2-stim-band",
+  version: "v2-band-all",
   // true: 사전 설문 등은 건너뛰고 실험 자극물(본 장면)만 테스트
   stimulusOnly: true,
 
@@ -45,8 +45,8 @@ window.SURVEY = {
   },
 
   // ── 블록 3·4. 연습 장면과 본 실험 장면 ────────────────
-  sceneIntro: "내가 운전석에 있다고 상상하며 영상을 봐 주세요. 영상 중간에 차량 내 AI 에이전트가 먼저 알림을 보냅니다. 영상이 끝나면 이 알림에 대해 답해 주세요.",
-  sceneInstruction: "지금 직접 운전하고 있다고 상상해 주세요. 영상 속에 나타나는 알림은 차량의 AI 에이전트가 이 상황에서 건네는 말이라고 생각해 주세요.",
+  sceneIntro: "내가 운전석에 있다고 상상하며 영상을 봐 주세요. 영상 중간에 차량 내 AI 에이전트가 먼저 알림을 보내고, 알림은 영상 바로 아래에 나타납니다. 영상이 끝나면 이 알림에 대해 답해 주세요.",
+  sceneInstruction: "지금 직접 운전하고 있다고 상상해 주세요. 영상 아래에 나타나는 알림은 차량의 AI 에이전트가 이 상황에서 건네는 말이라고 생각해 주세요.",
 
   // 부하 수준별 상황 설명 (장면 페이지에 영상보다 먼저 보임)
   context: {
@@ -57,7 +57,7 @@ window.SURVEY = {
 
   practice: {
     id: "practice", load: "M", info: "practice", practice: true,
-    video: "media/practice.mp4", poster: "media/practice_poster.jpg",
+    video: "media/practice_clean.mp4", poster: "media/practice_clean_poster.jpg", overlayAt: 4.0,
     message: "앞 유리에 빗방울이 감지됐어요. 와이퍼를 켤까요?",
     context: ["응답 방법을 익히기 위한 연습 장면이에요. 이 장면의 응답은 분석에 포함되지 않아요."]
   },
@@ -68,11 +68,11 @@ window.SURVEY = {
   restAfter: [2],          // 이 번호의 장면 뒤에 휴식 (본 실험 9장면은 [5])
   restSeconds: 60,
   scenes: [
-    { id: "L_T1", load: "L", info: "T1", video: "media/scene_L_T1.mp4", poster: "media/scene_L_T1_poster.jpg",
+    // 알림 표시: 알림 없는 원본 영상 + 영상 아래 띠에 4.0초에 표시 (전방 시야 가림 없음)
+    { id: "L_T1", load: "L", info: "T1", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
       message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
-    { id: "M_T2", load: "M", info: "T2", video: "media/scene_M_T2.mp4", poster: "media/scene_M_T2_poster.jpg",
+    { id: "M_T2", load: "M", info: "T2", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
-    // 방안 A 테스트: 알림 없는 원본 영상 + 영상 아래 띠에 4.0초에 알림 표시 (overlayAt)
     { id: "H_T3", load: "H", info: "T3", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" }
   ],
