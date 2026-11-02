@@ -330,7 +330,7 @@
       return;
     }
     var title = st === "complete" ? "응답이 제출되었어요" : "참여해 주셔서 감사합니다";
-    var body = st === "complete" ? "소중한 시간을 내어 주셔서 감사합니다. 이제 창을 닫으셔도 됩니다."
+    var body = st === "complete" ? "소중한 시간을 내어 주셔서 감사합니다. 이제 창을 닫으셔도 돼요."
       : st === "screened_out" ? "이번 조사는 운전면허를 보유하고 운전 경력이 1년 이상인 분을 대상으로 합니다. 관심 가져 주셔서 감사합니다."
       : "동의하지 않으셔서 설문을 마칩니다. 관심 가져 주셔서 감사합니다.";
     app.innerHTML = '<section class="page">' +
