@@ -16,11 +16,17 @@
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
     remove: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
   };
+  // 진행 기록은 탭 단위(sessionStorage)로만 보관: 새로고침하면 이어지고, 링크를 새로 열면 항상 첫 화면부터 시작
+  var progressStore = {
+    get: function (k) { try { var v = sessionStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+    set: function (k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    remove: function (k) { try { sessionStorage.removeItem(k); } catch (e) {} }
+  };
 
   // ── 상태 ────────────────────────────────────────────
   // ?reset=1: 저장된 진행 기록을 지우고 첫 화면부터 시작. 새로고침해도 다시 지워지지 않도록 주소에서 뺌
   if (params.has("reset")) {
-    safeStore.remove(STORE_KEY);
+    progressStore.remove(STORE_KEY);
     params.delete("reset");
     try { history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash); } catch (e) {}
   }
@@ -33,7 +39,8 @@
   var msgById = {};
   C.messageAttr.messages.forEach(function (m) { msgById[m.id] = m; });
 
-  var state = safeStore.get(STORE_KEY);
+  safeStore.remove(STORE_KEY);   // 예전 버전이 브라우저에 남긴 진행 기록 정리
+  var state = progressStore.get(STORE_KEY);
   if (!isUsable(state)) state = newState();
   save();
 
@@ -57,7 +64,7 @@
     return { pid: makeId(), version: C.version, startedAt: new Date().toISOString(), order: o, loadOrder: lo, msgOrder: mo,
       page: 0, answers: {}, rec: {}, status: "in_progress", finished: false, src: params.get("src") || "" };
   }
-  function save() { safeStore.set(STORE_KEY, state); }
+  function save() { progressStore.set(STORE_KEY, state); }
 
   // ── 페이지 구성 ──────────────────────────────────────
   var SEC = { demo: 1, load: 2, main: 3, msg: 4, gaais: 5, end: 6 };
@@ -347,7 +354,7 @@
     if (STIM) {
       app.innerHTML = '<section class="page"><h1>점검할 장면을 모두 봤어요</h1><p class="lead">처음부터 다시 보려면 아래 버튼을 눌러 주세요. 장면 순서는 다시 무작위로 섞여요.</p>' +
         '<div class="actions"><span></span><button class="btn" data-restart>처음부터 다시 보기</button></div></section>';
-      app.querySelector("[data-restart]").onclick = function () { safeStore.remove(STORE_KEY); location.reload(); };
+      app.querySelector("[data-restart]").onclick = function () { progressStore.remove(STORE_KEY); location.reload(); };
       return;
     }
     var title = st === "complete" ? "응답이 제출되었어요" : "참여해 주셔서 감사합니다";
@@ -581,7 +588,7 @@
   } catch (err) {
     var retried = false;
     try { retried = sessionStorage.getItem("aidv-retried") === "1"; sessionStorage.setItem("aidv-retried", "1"); } catch (e) { retried = true; }
-    safeStore.remove(STORE_KEY);
+    progressStore.remove(STORE_KEY);
     if (!retried) location.reload();
     else app.innerHTML = '<section class="page"><h1>설문을 불러오지 못했습니다</h1><p class="lead">잠시 후 페이지를 새로고침해 주십시오. 계속 같은 화면이 보이면 연구자에게 알려 주십시오.</p></section>';
     if (window.console) console.error(err);
