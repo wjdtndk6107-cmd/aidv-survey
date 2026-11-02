@@ -55,11 +55,10 @@
   function save() { safeStore.set(STORE_KEY, state); }
 
   // ── 페이지 구성 ──────────────────────────────────────
-  var SEC = { demo: 1, load: 2, practice: 3, main: 4, msg: 5, gaais: 6, end: 7 };
+  var SEC = { demo: 1, load: 2, main: 3, msg: 4, gaais: 5, end: 6 };
   var pages = [];
   if (STIM) {
-    // 자극물 점검: 연습 장면과 본 장면만 차례로 보여 주고 끝냄
-    pages.push({ kind: "video", mode: "scene", num: SEC.practice, id: C.practice.id, clip: C.practice, practice: true });
+    // 자극물 점검: 본 장면만 차례로 보여 주고 끝냄
     state.order.forEach(function (id, i) {
       pages.push({ kind: "video", mode: "scene", num: SEC.main, id: id, clip: sceneById[id], index: i, total: state.order.length });
     });
@@ -77,16 +76,12 @@
   state.loadOrder.forEach(function (id, i) {
     pages.push({ kind: "video", mode: "load", num: SEC.load, id: "load." + id, clip: loadById[id], index: i, total: state.loadOrder.length });
   });
-  pages.push({ kind: "intro", id: "sceneIntro", num: SEC.practice, title: "알림 장면 안내",
-    lead: ["이제부터는 영상 중간에 차량의 AI 에이전트가 먼저 알림을 보내요. 장면마다 같은 순서로 16가지를 여쭤보고, 질문은 6개 묶음으로 나뉘어 있어요.",
-      "먼저 연습 장면 1개로 응답 방법을 익힌 뒤 본 장면 " + state.order.length + "개를 보시게 됩니다."],
-    quote: C.sceneIntro, next: "연습 장면 보기" });
-  pages.push({ kind: "video", mode: "scene", num: SEC.practice, id: C.practice.id, clip: C.practice, practice: true });
-  pages.push({ kind: "intro", id: "mainIntro", num: SEC.main, title: "본 장면 시작",
-    lead: ["연습을 마쳤어요. 지금부터 본 장면 " + state.order.length + "개가 무작위 순서로 이어집니다.",
-      "장면마다 상황과 알림이 달라요. 매번 방금 본 장면만 떠올리며 답해 주세요." +
+  pages.push({ kind: "intro", id: "sceneIntro", num: SEC.main, title: "알림 장면 안내",
+    lead: ["이제부터는 영상 중간에 차량의 AI 에이전트가 먼저 알림을 보내요. 장면마다 같은 순서로 " +
+      C.sceneGroups.reduce(function (n, g) { return n + g.items.length; }, 0) + "가지를 여쭤보고, 질문은 " + C.sceneGroups.length + "개 묶음으로 나뉘어 있어요.",
+      "장면 " + state.order.length + "개가 무작위 순서로 이어집니다. 장면마다 상황과 알림이 달라요. 매번 방금 본 장면만 떠올리며 답해 주세요." +
       (C.checkAfter ? " 중간에 집중도를 확인하는 짧은 질문이 한 번 있어요." : "")],
-    next: "본 장면 시작하기" });
+    quote: C.sceneIntro, next: "첫 장면 보기" });
   state.order.forEach(function (id, i) {
     pages.push({ kind: "video", mode: "scene", num: SEC.main, id: id, clip: sceneById[id], index: i, total: state.order.length });
     if (C.checkAfter === i + 1 && i + 1 < state.order.length) pages.push(checkPage(id, state.order.length - (i + 1)));
@@ -153,14 +148,14 @@
   }
 
   function renderWelcome() {
-    var nScenes = state.order.length + 1;
+    var nScenes = state.order.length;
     var mins = Math.round(4 + C.loadCheck.videos.length * 0.8 + nScenes * 2.3 + 1 + 3);
     app.innerHTML = '<section class="page">' +
       "<h1>" + esc(C.title) + "</h1>" +
       '<p class="lead">레벨 2 부분 자율주행(차로 유지·속도 조절 보조) 상황에서 차량 AI가 운전자에게 먼저 정보를 알려줄 때, 주행 상황과 정보 종류에 따라 이를 어떻게 받아들이는지 알아보기 위한 연구예요.</p>' +
       '<ul class="facts">' +
       "<li><b>소요 시간</b><span>약 " + mins + "분</span></li>" +
-      "<li><b>진행 순서</b><span>사전 설문 → 주행 영상 " + C.loadCheck.videos.length + "개 평가 → 연습 장면 → 알림 장면 " + state.order.length + "개 → 알림 내용 평가 → AI 태도</span></li>" +
+      "<li><b>진행 순서</b><span>사전 설문 → 주행 영상 " + C.loadCheck.videos.length + "개 평가 → 알림 장면 " + state.order.length + "개 → 알림 내용 평가 → AI 태도</span></li>" +
       "<li><b>개인정보</b><span>이름·연락처 등 개인을 식별할 수 있는 정보는 수집하지 않으며, 응답은 연구 목적으로만 사용돼요.</span></li>" +
       "<li><b>중단</b><span>언제든 창을 닫아 그만두실 수 있고, 불이익은 없어요.</span></li>" +
       "<li><b>권장 환경</b><span>PC나 태블릿처럼 큰 화면에서 참여해 주세요. 실제감을 위해 영상의 소리를 켜 주세요.</span></li>" +
@@ -207,7 +202,8 @@
     rec.enteredAt = Date.now();
     var title = isLoad ? "주행 상황 " + (p.index + 1) + " / " + p.total
       : p.practice ? "연습 장면" : "장면 " + (p.index + 1) + " / " + p.total;
-    var ctx = isLoad ? [] : (c.context || C.context[c.load] || []);
+    // 상황 설명: 부하 점검 영상에도 같은 부하의 본 장면과 동일한 문구를 보여 줌
+    var ctx = c.context || C.context[isLoad ? c.id : c.load] || [];
 
     var head = '<header class="scene-head">' + count() + heading(p, title) +
       (ctx.length ? '<div class="brief">' + ctx.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") + "</div>" : "") +
