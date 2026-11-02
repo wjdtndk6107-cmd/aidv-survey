@@ -82,19 +82,19 @@ window.SURVEY = {
     { id: "L_T2", load: "L", info: "T2", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
     { id: "L_T3", load: "L", info: "T3", video: "media/load_L.mp4", poster: "media/load_L_poster.jpg", overlayAt: 4.0,
-      message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" },
+      message: "집 도착 20분 전이에요. 귀가 모드로 집의 에어컨을 켤까요?" },
     { id: "M_T1", load: "M", info: "T1", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
       message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
     { id: "M_T2", load: "M", info: "T2", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
     { id: "M_T3", load: "M", info: "T3", video: "media/load_M.mp4", poster: "media/load_M_poster.jpg", overlayAt: 4.0,
-      message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" },
+      message: "집 도착 20분 전이에요. 귀가 모드로 집의 에어컨을 켤까요?" },
     { id: "H_T1", load: "H", info: "T1", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
     { id: "H_T2", load: "H", info: "T2", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
       message: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
     { id: "H_T3", load: "H", info: "T3", video: "media/load_H.mp4", poster: "media/load_H_poster.jpg", overlayAt: 4.0,
-      message: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" }
+      message: "집 도착 20분 전이에요. 귀가 모드로 집의 에어컨을 켤까요?" }
   ],
 
   // 장면마다 같은 순서로 묻는 16문항 (묶음 단위로 카드 하나씩)
@@ -141,7 +141,7 @@ window.SURVEY = {
     messages: [
       { id: "T1", text: "2km 앞 사고로 정체가 시작됐어요. 우회 경로를 안내할까요?" },
       { id: "T2", text: "7시 회의에 약 15분 늦을 것 같아요. 참석자에게 알릴까요?" },
-      { id: "T3", text: "집 도착 20분 전이에요. 귀가 모드로 에어컨을 켤까요?" }
+      { id: "T3", text: "집 도착 20분 전이에요. 귀가 모드로 집의 에어컨을 켤까요?" }
     ],
     items: [
       { key: "URG", text: "이 정보는 지금 바로 알아야 할 만큼 긴급하다고 느끼시나요?" },
